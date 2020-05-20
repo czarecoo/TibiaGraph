@@ -1,15 +1,17 @@
-package com.czareg.model;
+package com.czareg.model.choicebox;
+
+import com.czareg.model.Information;
 
 import java.util.Objects;
 
-public class AllWords {
+public class GetWorlds {
     Worlds worlds;
     Information information;
 
-    public AllWords() {
+    public GetWorlds() {
     }
 
-    public AllWords(Worlds worlds, Information information) {
+    public GetWorlds(Worlds worlds, Information information) {
         this.worlds = worlds;
         this.information = information;
     }
@@ -34,9 +36,9 @@ public class AllWords {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AllWords allWords = (AllWords) o;
-        return Objects.equals(worlds, allWords.worlds) &&
-                Objects.equals(information, allWords.information);
+        GetWorlds getWorlds = (GetWorlds) o;
+        return Objects.equals(worlds, getWorlds.worlds) &&
+                Objects.equals(information, getWorlds.information);
     }
 
     @Override

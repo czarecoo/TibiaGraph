@@ -1,4 +1,4 @@
-package com.czareg.model;
+package com.czareg.model.choicebox;
 
 import java.util.List;
 import java.util.Objects;

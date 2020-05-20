@@ -30,7 +30,7 @@
                       <CategoryAxis label="Level range" side="BOTTOM" />
                     </xAxis>
                     <yAxis>
-                      <NumberAxis label="Players" side="LEFT" />
+                      <NumberAxis label="Players" side="LEFT" tickUnit="10.0" />
                     </yAxis>
                   </BarChart>
                </children>
