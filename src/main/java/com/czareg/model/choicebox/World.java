@@ -1,7 +1,10 @@
 package com.czareg.model.choicebox;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Objects;
 
+@JsonIgnoreProperties
 public class World {
     String name;
     int online;

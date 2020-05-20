@@ -11,11 +11,11 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.czareg.Controller">
    <children>
-      <SplitPane dividerPositions="0.1" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.0" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
-          <AnchorPane>
+          <AnchorPane maxHeight="-Infinity" prefHeight="20.0">
                <children>
-                  <ToolBar AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <ToolBar maxHeight="-Infinity" prefHeight="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <items>
                         <ChoiceBox fx:id="choiceBox" prefWidth="200.0" />
                       <Button fx:id="refreshButton" mnemonicParsing="false" text="Refresh" />
@@ -27,10 +27,10 @@
                <children>
                   <BarChart fx:id="barChart" title="Server" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <xAxis>
-                      <CategoryAxis label="Level range" side="BOTTOM" />
+                      <CategoryAxis label="Level range" side="BOTTOM" fx:id="xAxis" />
                     </xAxis>
                     <yAxis>
-                      <NumberAxis label="Players" side="LEFT" tickUnit="10.0" />
+                      <NumberAxis label="Players" minorTickLength="0.0" side="LEFT" tickLabelGap="5.0" tickLength="5.0" tickUnit="10.0" upperBound="150.0" />
                     </yAxis>
                   </BarChart>
                </children>

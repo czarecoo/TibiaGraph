@@ -1,9 +1,11 @@
 package com.czareg.model.graph;
 
 import com.czareg.model.Information;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.Objects;
 
+@JsonIgnoreProperties
 public class GetWorld {
     WorldDetailed world;
     Information information;

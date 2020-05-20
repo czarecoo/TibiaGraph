@@ -24,9 +24,9 @@ public class TibiaGraph extends Application {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/layout.fxml"));
         Parent root = loader.load();
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1024, 700);
         stage.setTitle("TibiaGraph");
-        stage.setResizable(false);
+        stage.setResizable(true);
         stage.setScene(scene);
         LOG.info("Started UI");
         stage.show();

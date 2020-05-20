@@ -1,8 +1,11 @@
 package com.czareg.model.graph;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.Objects;
 
+@JsonIgnoreProperties
 public class WorldDetailed {
     WorldInformation world_information;
     List<Player> players_online;

@@ -1,7 +1,10 @@
 package com.czareg.model.graph;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Objects;
 
+@JsonIgnoreProperties
 public class Date {
     String date;
     String timezone_type;
