@@ -21,13 +21,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Controller {
+    public static final int MAX_LEVEL_BRACKET = 16;
     private static final Logger LOG = LoggerFactory.getLogger(TibiaGraph.class);
-
     @FXML
     private ChoiceBox<String> choiceBox;
 
@@ -40,6 +42,8 @@ public class Controller {
     @FXML
     private CategoryAxis xAxis;
     private ObjectMapper mapper;
+    private List<String> allWorldNames;
+    private GetWorlds getWorlds;
 
     @FXML
     private void initialize() throws IOException {
@@ -49,10 +53,12 @@ public class Controller {
     }
 
     private void setUpChoiceBox(ObjectMapper mapper) throws IOException {
-        GetWorlds getWorlds = mapper.readValue(new URL("https://api.tibiadata.com/v2/worlds.json"), GetWorlds.class);
+        String url = "https://api.tibiadata.com/v2/worlds.json";
+        URLConnection connection = createUrlConnection(url);
+        getWorlds = mapper.readValue(connection.getInputStream(), GetWorlds.class);
         List<World> allworlds = getWorlds.getWorlds().getAllworlds();
-
-        //choiceBox.getItems().add("All");
+        allWorldNames = allworlds.stream().map(World::getName).collect(Collectors.toList());
+        choiceBox.getItems().add("All");
         for (World world : allworlds) {
             choiceBox.getItems().add(world.getName());
         }
@@ -63,31 +69,77 @@ public class Controller {
     private ChangeListener<Number> createChoiceBoxOnSelectListener() {
         return (observableValue, oldValueIndex, newValueIndex) -> {
             String newValue = choiceBox.getItems().get((Integer) newValueIndex);
-            try {
-                onSelect(newValue);
-            } catch (IOException e) {
-                LOG.error("error", e);
-            }
+            select(newValue);
         };
     }
 
     private EventHandler<ActionEvent> createButtonOnClickHandler() {
         return e -> {
             String newValue = choiceBox.getValue();
-            try {
-                onSelect(newValue);
-            } catch (IOException f) {
-                LOG.error("error", f);
-            }
+            select(newValue);
         };
     }
 
-    private void onSelect(String newValue) throws IOException {
-        barChart.getData().clear();
-        barChart.layout();
+    private void select(String newValue) {
+        try {
+            barChart.getData().clear();
+            barChart.layout();
+            if (newValue.equals("All")) {
+                onSelectAll();
+            } else {
+                onSelectOne(newValue);
+            }
+        } catch (IOException e) {
+            LOG.error("error", e);
+        }
+    }
 
+    private void onSelectAll() throws IOException {
+        String title = String.format("All online players: %d", getWorlds.getWorlds().getOnline());
+        barChart.setTitle(title);
+        List<List<Player>> playersForServer = new ArrayList<>();
+        for (String world : allWorldNames) {
+            String url = String.format("https://api.tibiadata.com/v2/world/%s.json", world);
+            URLConnection connection = createUrlConnection(url);
+            GetWorld getWorld = mapper.readValue(connection.getInputStream(), GetWorld.class);
+            List<Player> players = getWorld.getWorld().getPlayers_online();
+            if (players != null) {
+                playersForServer.add(players);
+            }
+        }
+
+        int low = 1;
+        int high = 100;
+        List<String> labels = new ArrayList<>();
+        XYChart.Series series = new XYChart.Series();
+        series.setName("All");
+        LOG.info("All:");
+        for (int i = 0; i < MAX_LEVEL_BRACKET; i++) {
+            String label = String.format("%s-%s", low, high);
+            labels.add(label);
+            int count = 0;
+            for (List<Player> players : playersForServer) {
+                count += players.stream()
+                        .map(Player::getLevel)
+                        .filter(getIntegerPredicate(low, high))
+                        .count();
+            }
+            LOG.info("Label: {}, count: {}", label, count);
+            XYChart.Data data = new XYChart.Data(label, count);
+            series.getData().add(data);
+
+            low += 100;
+            high += 100;
+        }
+        barChart.getData().add(series);
+        xAxis.setCategories(FXCollections.observableList(labels));
+
+    }
+
+    private void onSelectOne(String newValue) throws IOException {
         String url = String.format("https://api.tibiadata.com/v2/world/%s.json", newValue);
-        GetWorld getWorld = mapper.readValue(new URL(url), GetWorld.class);
+        URLConnection connection = createUrlConnection(url);
+        GetWorld getWorld = mapper.readValue(connection.getInputStream(), GetWorld.class);
         WorldInformation world_information = getWorld.getWorld().getWorld_information();
         String title = String.format("%s online players: %d %s", newValue, world_information.getPlayers_online(), world_information.getPvp_type());
         barChart.setTitle(title);
@@ -101,14 +153,16 @@ public class Controller {
         List<String> labels = new ArrayList<>();
         XYChart.Series series = new XYChart.Series();
         series.setName(newValue);
-        for (int i = 0; i < 15; i++) {
+        LOG.info(newValue);
+        for (int i = 0; i < MAX_LEVEL_BRACKET; i++) {
             String label = String.format("%s-%s", low, high);
             labels.add(label);
-
-            XYChart.Data data = new XYChart.Data(label, players.stream()
+            long count = players.stream()
                     .map(Player::getLevel)
                     .filter(getIntegerPredicate(low, high))
-                    .count());
+                    .count();
+            LOG.info("Label: {}, count: {}", label, count);
+            XYChart.Data data = new XYChart.Data(label, count);
             series.getData().add(data);
 
             low += 100;
@@ -116,7 +170,14 @@ public class Controller {
         }
         barChart.getData().add(series);
         xAxis.setCategories(FXCollections.observableList(labels));
+    }
 
+    private URLConnection createUrlConnection(String url) throws IOException {
+        if (TibiaGraph.getProxy() != null) {
+            return new URL(url).openConnection(TibiaGraph.getProxy());
+        } else {
+            return new URL(url).openConnection();
+        }
     }
 
     private Predicate<Integer> getIntegerPredicate(int low, int high) {
